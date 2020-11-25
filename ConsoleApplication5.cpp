@@ -1,4 +1,4 @@
-﻿#include <stdlib.h>
+#include <stdlib.h>
 #include <math.h>
 #include "glut.h"
 #include <list>
@@ -21,15 +21,20 @@ public:
 		y += dot.y;
 		return *this;
 	}
+	void DrawPoint(Point& MyPoint);
 };
+//void Point::DrawPoint(Point& MyPoint) {
+//	glBegin(GL_POINTS);
+//	glColor3d(0, 1, 0);
+//	glVertex2d(MyPoint.x, MyPoint.y);
+//	glEnd();
+//}
 class Line {
 private:
 	Point a;
 	Point b;
 public:
 	Line(Point a1, Point b1) { a = a1, b = b1; };
-	Point GetA() { return a; };
-	Point GetB() { return b; };
 	void NegA() { a.NegX(); b.NegX(); }
 	void NegB() { a.NegY(); b.NegY(); }
 	Line& operator += (Line dot) {
@@ -37,6 +42,9 @@ public:
 		b += dot.b;
 		return *this;
 	}
+	void DrawLine(Line& Myline);
+	void DrawTrace(Line& Myline, Line& MyTrace);
+	void doing(Line& Myline, Line& MyTrace);
 };
 void changeSize(int w, int h) {
 	if (h == 0)
@@ -48,39 +56,42 @@ void changeSize(int w, int h) {
 	gluPerspective(45.0f, ratio, 0.1f, 100.0f);
 	glMatrixMode(GL_MODELVIEW);
 }
-void DrawLine(Line& Myline) {
+void Line::DrawLine(Line& Myline) {
 	glLineWidth(3);
 	glBegin(GL_LINES);
 	glColor3d(0, 1, 0);
-	glVertex2d(Myline.GetA().Getx(), Myline.GetA().Gety());
-	glVertex2d(Myline.GetB().Getx(), Myline.GetB().Gety());
+	glVertex2d(Myline.a.Getx(), Myline.a.GetY());
+	glVertex2d(Myline.b.GetX(), Myline.b.GetY());
 	glEnd();
 }
-void DrawTrace(Line& Myline, Line& speed) {
+void Line::DrawTrace(Line& Myline, Line& MyTrace) {
 	glLineWidth(3);
 	glBegin(GL_POLYGON);
 	glColor3d(1, 0, 0);
-	glVertex2d(Myline.GetA().Getx(), Myline.GetA().Gety());
-	glVertex2d(Myline.GetB().Getx(), Myline.GetB().Gety());
-	glVertex2d(Myline.GetA().Getx() - 5 * speed.GetA().Getx(), Myline.GetA().Gety() - 5 * speed.GetA().Gety());
-	glVertex2d(Myline.GetB().Getx() - 5 * speed.GetB().Getx(), Myline.GetB().Gety() - 5 * speed.GetB().Gety());
+	glVertex2d(Myline.a.Getx(), Myline.a.Gety());
+	glVertex2d(Myline.b.Getx(), Myline.b.Gety());
+	glVertex2d(Myline.a.Getx() - 5 * MyTrace.a.Getx(), Myline.a.Gety() - 5 * MyTrace.a.Gety());
+	glVertex2d(Myline.b.Getx() - 5 * MyTrace.b.Getx(), Myline.b.Gety() - 5 * MyTrace.b.Gety());
 	glEnd();
 }
+void Line::doing(Line& Myline, Line& MyTrace) {
+	if (Myline.a.Getx() <= -3 || Myline.a.Getx() >= 3 || Myline.b.Getx() <= -4 || Myline.b.Getx() >= 3) {
+		MyTrace.NegA();
+	}
+	else if (Myline.a.Gety() <= -3 || Myline.a.Gety() >= 3 || Myline.b.Gety() <= -4 || Myline.b.Gety() >= 3) {
+		MyTrace.NegB();
+	}
+}
 Line Myline = Line(Point(0, 0), Point(1, 1));
-Line speed = Line(Point(0.01, 0.01), Point(0.01, 0.01));
+Line MyTrace = Line(Point(0.01, 0.01), Point(0.01, 0.01));
 void renderScene(void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 	gluLookAt(0.0f, 0.0f, 10.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.1f, 0.0f);
-	DrawLine(Myline);
-	DrawTrace(Myline, speed);
-	Myline += speed;
-	if (Myline.GetA().Getx() <= -3 || Myline.GetA().Getx() >= 3 || Myline.GetB().Getx() <= -4 || Myline.GetB().Getx() >= 3) {
-		speed.NegA();
-	}
-	else if (Myline.GetA().Gety() <= -3 || Myline.GetA().Gety() >= 3 || Myline.GetB().Gety() <= -4 || Myline.GetB().Gety() >= 3) {
-		speed.NegB();
-	}
+	Myline.DrawLine(Myline);
+	Myline.DrawTrace(Myline, MyTrace);
+	Myline += MyTrace;
+	Myline.doing(Myline, MyTrace);
 	glutSwapBuffers();
 }
 void processNormalKeys(unsigned char key, int x, int y) {
@@ -91,16 +102,16 @@ void processNormalKeys(unsigned char key, int x, int y) {
 void processSpecialKeys(int key, int x, int y) {
 	switch (key) {
 	case GLUT_KEY_LEFT:
-		speed += Line(Point(-0.01, 0), Point(-0.01, 0));
+		MyTrace += Line(Point(-0.01, 0), Point(-0.01, 0));
 		break;
 	case GLUT_KEY_DOWN:
-		speed += Line(Point(0, -0.01), Point(0, -0.01));
+		MyTrace += Line(Point(0, -0.01), Point(0, -0.01));
 		break;
 	case GLUT_KEY_RIGHT:
-		speed += Line(Point(0.01, 0), Point(0.01, 0));
+		MyTrace += Line(Point(0.01, 0), Point(0.01, 0));
 		break;
 	case GLUT_KEY_UP:
-		speed += Line(Point(0, 0.01), Point(0, 0.01));
+		MyTrace += Line(Point(0, 0.01), Point(0, 0.01));
 		break;
 	}
 }
