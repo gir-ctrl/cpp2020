@@ -13,15 +13,13 @@ bool CheckIfInteger(const string& str)
 	return (*p == 0);
 }
 void ProcessSpecialKeys(int key, int x, int y) {
-	menu* current_menu = CurrentMenu();
+	menu *current_menu = CurrentMenu();
 	switch (key) {
 	case GLUT_KEY_DOWN:
-		if (current_menu->active < current_menu->key.size() - 1)
-			current_menu->active++;
+		current_menu->move(down);
 		break;
 	case GLUT_KEY_UP:
-		if (current_menu->active > 0)
-			current_menu->active--;
+		current_menu->move(up);
 		break;
 	}
 }
@@ -32,13 +30,13 @@ void ProcessNormalKeys(unsigned char key, int x, int y) {
 	break;
 	case 13:{
 		menu* current_menu = CurrentMenu();
-		button cur = current_menu->key[current_menu->active];
-		if (CheckIfInteger(cur.text)){
-			OpenMenu(stoi(cur.text));
+		string action = current_menu->menuAction();
+		if (CheckIfInteger(action)){
+			OpenMenu(stoi(action));
 			return;
 		}
 		else{
-			if (cur.text.compare("close") == 0){
+			if (action.compare("close") == 0){
 				CloseMenu();
 				return;
 			}
@@ -58,7 +56,7 @@ void main(int argc, char** argv)
 	glutInitWindowPosition(100, 100);
 	glutInitWindowSize(400, 400);
 	glutCreateWindow("lab_3");
-	glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
+	glClearColor(1.0f, 1.f, 0.6f, 0.6f);
 
 	glutKeyboardFunc(ProcessNormalKeys);
 	glutSpecialFunc(ProcessSpecialKeys);
