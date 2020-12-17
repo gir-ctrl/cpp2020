@@ -49,9 +49,9 @@ public:
 	}
 	void butDraw(bool act){
 		if (act == true)
-			coords.rectDraw(0.4, 0.4, 0.4);
+			coords.rectDraw(0.5, 0.7, 0.4);
 		else
-			coords.rectDraw(0.66, 0.66, 0.66);
+			coords.rectDraw(0.5, 0.3, 0.7);
 	}
 	string get_text(){ return text; };
 };
@@ -70,7 +70,7 @@ public:
 		key.push_back(button(a1, b1, a2, b2, text_));
 	}
 	void menuDraw(){
-		coordinates.rectDraw(0.9, 0.9, 0.9);
+		coordinates.rectDraw(0.4, 0.9, 0.8);
 		int i = 0;
 		for (auto& cur_b : key){
 			if (i == active)
